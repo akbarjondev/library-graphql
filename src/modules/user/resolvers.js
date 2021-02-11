@@ -1,17 +1,19 @@
 const { data } = require('./model')
-const { PubSub } = require('apollo-server-express')
-const pubsub = new PubSub()
+const pubsub = require('./../../../lib/pubsub')
 
 module.exports = {
 	Query: {
 		user: (_, { userId }) => data.find(e => e.userId === userId),
 		users: () => data
 	},
+	
 	Mutation: {
 		addUser: (_, { username, password }) => {
-			data.push({userId: data.length + 1, username, password})
+			const user = {userId: data.length + 1, username, password}
 
+			data.push(user)
 
+			pubsub.publish('NEW_USER', user)
 
 			return {
 				code: 200,
@@ -27,6 +29,15 @@ module.exports = {
 			return {
 				code: 200,
 				message: 'User has been edited.'
+			}
+		}
+	},
+
+	Subscription: {
+		newUser: {
+			subscribe: () => pubsub.asyncIterator(['NEW_USER']),
+			resolve: (payload) => {
+				return payload
 			}
 		}
 	}

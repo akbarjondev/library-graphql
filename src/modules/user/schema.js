@@ -8,6 +8,10 @@ module.exports = gql`
 		users: [User!]!
 	}
 
+	extend type Subscription {
+		newUser: User!
+	}
+
 	extend type Mutation {
 		addUser(username: String! password: String!): Response
 		editUser(userId: Int! username: String password: String): Response
@@ -18,5 +22,4 @@ module.exports = gql`
 		username: String!
 		password: String
 	}
-
 `
